@@ -21,7 +21,7 @@ namespace highhmedtech_test.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Disease", b =>
+            modelBuilder.Entity("DiseaseEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -29,7 +29,10 @@ namespace highhmedtech_test.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("Title")
+                    b.Property<string>("Code")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("character varying(200)");
@@ -39,7 +42,7 @@ namespace highhmedtech_test.Migrations
                     b.ToTable("Diseases");
                 });
 
-            modelBuilder.Entity("DiseasePatient", b =>
+            modelBuilder.Entity("DiseasePatientEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -73,7 +76,7 @@ namespace highhmedtech_test.Migrations
                     b.ToTable("DiseasePatients");
                 });
 
-            modelBuilder.Entity("Doctor", b =>
+            modelBuilder.Entity("DoctorEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -83,14 +86,22 @@ namespace highhmedtech_test.Migrations
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Passport")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)");
 
                     b.Property<string>("Patronymic")
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("Specialty")
                         .IsRequired()
@@ -102,7 +113,7 @@ namespace highhmedtech_test.Migrations
                     b.ToTable("Doctors");
                 });
 
-            modelBuilder.Entity("DoctorPatient", b =>
+            modelBuilder.Entity("DoctorPatientEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -128,7 +139,7 @@ namespace highhmedtech_test.Migrations
                     b.ToTable("DoctorPatients");
                 });
 
-            modelBuilder.Entity("Patient", b =>
+            modelBuilder.Entity("PatientEntity", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -153,26 +164,31 @@ namespace highhmedtech_test.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("SNILS")
+                        .IsRequired()
+                        .HasMaxLength(11)
+                        .HasColumnType("character varying(11)");
+
                     b.HasKey("Id");
 
                     b.ToTable("Patients");
                 });
 
-            modelBuilder.Entity("DiseasePatient", b =>
+            modelBuilder.Entity("DiseasePatientEntity", b =>
                 {
-                    b.HasOne("Disease", "Disease")
+                    b.HasOne("DiseaseEntity", "Disease")
                         .WithMany("DiseasePatients")
                         .HasForeignKey("DiseaseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Doctor", "Doctor")
+                    b.HasOne("DoctorEntity", "Doctor")
                         .WithMany("DiseasePatients")
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Patient", "Patient")
+                    b.HasOne("PatientEntity", "Patient")
                         .WithMany("DiseasePatients")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -185,15 +201,15 @@ namespace highhmedtech_test.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("DoctorPatient", b =>
+            modelBuilder.Entity("DoctorPatientEntity", b =>
                 {
-                    b.HasOne("Doctor", "Doctor")
+                    b.HasOne("DoctorEntity", "Doctor")
                         .WithMany("DoctorPatients")
                         .HasForeignKey("DoctorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Patient", "Patient")
+                    b.HasOne("PatientEntity", "Patient")
                         .WithMany("DoctorPatients")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -204,19 +220,19 @@ namespace highhmedtech_test.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("Disease", b =>
+            modelBuilder.Entity("DiseaseEntity", b =>
                 {
                     b.Navigation("DiseasePatients");
                 });
 
-            modelBuilder.Entity("Doctor", b =>
+            modelBuilder.Entity("DoctorEntity", b =>
                 {
                     b.Navigation("DiseasePatients");
 
                     b.Navigation("DoctorPatients");
                 });
 
-            modelBuilder.Entity("Patient", b =>
+            modelBuilder.Entity("PatientEntity", b =>
                 {
                     b.Navigation("DiseasePatients");
 

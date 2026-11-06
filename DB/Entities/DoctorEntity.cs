@@ -4,6 +4,7 @@ public class DoctorEntity
     public string LastName { get; set; }
     public string FirstName { get; set; }
     public string? Patronymic { get; set; }
+    public string Passport { get; set; }
     public string Specialty { get; set; }
 
     public List<DoctorPatientEntity> DoctorPatients { get; set; } = new List<DoctorPatientEntity>();

@@ -19,11 +19,15 @@ public class MedTechDbContext : DbContext
         {
             EntityBuilder.HasKey(d => d.Id);
             EntityBuilder.Property(d => d.Specialty).HasMaxLength(100).IsRequired();
+            EntityBuilder.Property(d => d.LastName).HasMaxLength(100).IsRequired();
+            EntityBuilder.Property(d => d.FirstName).HasMaxLength(100).IsRequired();
+            EntityBuilder.Property(d => d.Patronymic).HasMaxLength(100);
+            EntityBuilder.Property(d => d.Passport).HasMaxLength(10).IsRequired();
         });
         modelBuilder.Entity<DiseaseEntity>(EntityBuilder =>
         {
             EntityBuilder.HasKey(d => d.Id);
-            EntityBuilder.Property(d => d.Title).HasMaxLength(200).IsRequired();
+            EntityBuilder.Property(d => d.Name).HasMaxLength(200).IsRequired();
         });
         modelBuilder.Entity<PatientEntity>(EntityBuilder =>
         {
@@ -31,7 +35,9 @@ public class MedTechDbContext : DbContext
             EntityBuilder.Property(p => p.LastName).HasMaxLength(100).IsRequired();
             EntityBuilder.Property(p => p.FirstName).HasMaxLength(100).IsRequired();
             EntityBuilder.Property(p => p.Patronymic).HasMaxLength(100);
+            EntityBuilder.Property(p => p.SNILS).HasMaxLength(11).IsRequired();
         });
+
 
         modelBuilder.Entity<DiseasePatientEntity>(EntityBuilder =>
         {

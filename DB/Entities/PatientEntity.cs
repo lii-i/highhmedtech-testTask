@@ -4,6 +4,7 @@ public class PatientEntity
     public string LastName { get; set; }
     public string FirstName { get; set; }
     public string? Patronymic { get; set; }
+    public string SNILS { get; set; }
     public DateOnly BirthDate { get; set; }
 
     public List<DoctorPatientEntity> DoctorPatients { get; set; } = new List<DoctorPatientEntity>();
