@@ -34,7 +34,8 @@ public class PatientService
             Patronymic = patient.Patronymic,
             SNILS = patient.SNILS,
             BirthDate = patient.BirthDate,
-            doctors = patient.DoctorPatients
+            Doctors = patient.DoctorPatients
+                .DistinctBy(dp => dp.Doctor.Id)
                 .Select(dp => new DoctorResponse
                 {
                     Id = dp.Doctor.Id,
@@ -45,12 +46,24 @@ public class PatientService
                     Specialty = dp.Doctor.Specialty
                 })
                 .ToList(),
-            diseases = patient.DiseasePatients
-                .Select(dp => new DiseaseDTO
+            Diagnoses = patient.DiseasePatients
+                .Select(dp => new DiagnosisDto
                 {
-                    Id = dp.Disease.Id,
-                    Name = dp.Disease.Name,
-                    Code = dp.Disease.Code
+                    DiseaseId = dp.Disease.Id,
+                    DiseaseName = dp.Disease.Name,
+                    DiseaseCode = dp.Disease.Code,
+                    DoctorId = dp.Doctor.Id,
+                    Doctor = new DoctorResponse
+                    {
+                        Id = dp.Doctor.Id,
+                        LastName = dp.Doctor.LastName,
+                        FirstName = dp.Doctor.FirstName,
+                        Patronymic = dp.Doctor.Patronymic,
+                        Passport = dp.Doctor.Passport,
+                        Specialty = dp.Doctor.Specialty
+                    },
+                    DiagnosedAt = dp.DiagnosedAt,
+                    IsCured = dp.IsCured
                 })
                 .ToList()
         };
@@ -60,7 +73,9 @@ public class PatientService
 
     public async Task<Result<PatientResponse>> AddPatientAsync(RequestAddPatient request)
     {
-        if (request.LastName == null || request.FirstName == null || request.SNILS == null)
+        if (string.IsNullOrWhiteSpace(request.LastName) ||
+            string.IsNullOrWhiteSpace(request.FirstName) ||
+            string.IsNullOrWhiteSpace(request.SNILS))
         {
             return new Result<PatientResponse> { Value = null, errorType = ErrorType.Validation, Error = "поля LastName, FirstName, SNILS обязательны для заполнения" };
         }
@@ -79,10 +94,10 @@ public class PatientService
 
         PatientEntity patient = new PatientEntity
         {
-            LastName = request.LastName,
-            FirstName = request.FirstName,
-            Patronymic = request.Patronymic,
-            SNILS = request.SNILS,
+            LastName = request.LastName.Trim(),
+            FirstName = request.FirstName.Trim(),
+            Patronymic = request.Patronymic?.Trim(),
+            SNILS = request.SNILS.Replace("-", "").Replace(" ", "").Trim(),
             BirthDate = request.BirthDate,
             DoctorPatients = { new DoctorPatientEntity { DoctorId = doctor.Id, Doctor = doctor } }
         };
@@ -97,19 +112,19 @@ public class PatientService
             Patronymic = patient.Patronymic,
             SNILS = patient.SNILS,
             BirthDate = patient.BirthDate,
-            doctors = new List<DoctorResponse>
+            Doctors = new List<DoctorResponse>
             {
                 new DoctorResponse
                 {
                     Id = doctor.Id,
-                    FirstName = doctor.FirstName,
                     LastName = doctor.LastName,
+                    FirstName = doctor.FirstName,
                     Patronymic = doctor.Patronymic,
                     Passport = doctor.Passport,
                     Specialty = doctor.Specialty
                 }
             },
-            diseases = new List<DiseaseDTO>()
+            Diagnoses = new List<DiagnosisDto>()
         };
 
         return new Result<PatientResponse> { Value = patientResponse, Error = null };
@@ -125,35 +140,48 @@ public class PatientService
         foreach (PatientEntity p in patients)
         {
             patientResponses.Add(
-                new PatientResponse
-                {
-                    Id = p.Id,
-                    LastName = p.LastName,
-                    FirstName = p.FirstName,
-                    Patronymic = p.Patronymic,
-                    SNILS = p.SNILS,
-                    BirthDate = p.BirthDate,
-                    doctors = p.DoctorPatients
-                        .Select(dp => new DoctorResponse
-                        {
-                            Id = dp.Doctor.Id,
-                            LastName = dp.Doctor.LastName,
-                            FirstName = dp.Doctor.FirstName,
-                            Patronymic = dp.Doctor.Patronymic,
-                            Passport = dp.Doctor.Passport,
-                            Specialty = dp.Doctor.Specialty
-                        })
-                        .ToList(),
-                    diseases = p.DiseasePatients
-                        .Select(dp => new DiseaseDTO
-                        {
-                            Id = dp.Disease.Id,
-                            Name = dp.Disease.Name,
-                            Code = dp.Disease.Code
-                        })
-                        .ToList()
-                }
-            );
+               new PatientResponse
+               {
+                   Id = p.Id,
+                   LastName = p.LastName,
+                   FirstName = p.FirstName,
+                   Patronymic = p.Patronymic,
+                   SNILS = p.SNILS,
+                   BirthDate = p.BirthDate,
+                   Doctors = p.DoctorPatients
+                       .DistinctBy(dp => dp.Doctor.Id)
+                       .Select(dp => new DoctorResponse
+                       {
+                           Id = dp.Doctor.Id,
+                           LastName = dp.Doctor.LastName,
+                           FirstName = dp.Doctor.FirstName,
+                           Patronymic = dp.Doctor.Patronymic,
+                           Passport = dp.Doctor.Passport,
+                           Specialty = dp.Doctor.Specialty
+                       })
+                       .ToList(),
+                   Diagnoses = p.DiseasePatients
+                       .Select(dp => new DiagnosisDto
+                       {
+                           DiseaseId = dp.Disease.Id,
+                           DiseaseName = dp.Disease.Name,
+                           DiseaseCode = dp.Disease.Code,
+                           DoctorId = dp.Doctor.Id,
+                           Doctor = new DoctorResponse
+                           {
+                               Id = dp.Doctor.Id,
+                               LastName = dp.Doctor.LastName,
+                               FirstName = dp.Doctor.FirstName,
+                               Patronymic = dp.Doctor.Patronymic,
+                               Passport = dp.Doctor.Passport,
+                               Specialty = dp.Doctor.Specialty
+                           },
+                           DiagnosedAt = dp.DiagnosedAt,
+                           IsCured = dp.IsCured
+                       })
+                       .ToList()
+               }
+           );
         }
 
         return new Result<List<PatientResponse>> { Value = patientResponses, Error = null };
@@ -201,24 +229,26 @@ public class PatientService
         {
             PatientId = patientId,
             DiseaseId = disease.Id,
+            Disease = disease,
             DoctorId = doctor.Id,
+            Doctor = doctor,
             DiagnosedAt = request.DiagnosedAt,
             IsCured = false
         };
 
         await _patientRepository.AddDiseaseToPatientAsync(diseasePatient);
-
-        PatientEntity updatedPatient = await _patientRepository.GetPatientByIdAsync(patientId);
+        patient.DiseasePatients.Add(diseasePatient);
 
         PatientResponse patientResponse = new PatientResponse
         {
-            Id = updatedPatient.Id,
-            LastName = updatedPatient.LastName,
-            FirstName = updatedPatient.FirstName,
-            Patronymic = updatedPatient.Patronymic,
-            SNILS = updatedPatient.SNILS,
-            BirthDate = updatedPatient.BirthDate,
-            doctors = updatedPatient.DoctorPatients
+            Id = patient.Id,
+            LastName = patient.LastName,
+            FirstName = patient.FirstName,
+            Patronymic = patient.Patronymic,
+            SNILS = patient.SNILS,
+            BirthDate = patient.BirthDate,
+            Doctors = patient.DoctorPatients
+                .DistinctBy(dp => dp.Doctor.Id)
                 .Select(dp => new DoctorResponse
                 {
                     Id = dp.Doctor.Id,
@@ -229,12 +259,24 @@ public class PatientService
                     Specialty = dp.Doctor.Specialty
                 })
                 .ToList(),
-            diseases = updatedPatient.DiseasePatients
-                .Select(dp => new DiseaseDTO
+            Diagnoses = patient.DiseasePatients
+                .Select(dp => new DiagnosisDto
                 {
-                    Id = dp.Disease.Id,
-                    Name = dp.Disease.Name,
-                    Code = dp.Disease.Code
+                    DiseaseId = dp.Disease.Id,
+                    DiseaseName = dp.Disease.Name,
+                    DiseaseCode = dp.Disease.Code,
+                    DoctorId = dp.Doctor.Id,
+                    Doctor = new DoctorResponse
+                    {
+                        Id = dp.Doctor.Id,
+                        LastName = dp.Doctor.LastName,
+                        FirstName = dp.Doctor.FirstName,
+                        Patronymic = dp.Doctor.Patronymic,
+                        Passport = dp.Doctor.Passport,
+                        Specialty = dp.Doctor.Specialty
+                    },
+                    DiagnosedAt = dp.DiagnosedAt,
+                    IsCured = dp.IsCured
                 })
                 .ToList()
         };

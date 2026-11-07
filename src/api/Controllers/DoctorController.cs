@@ -50,7 +50,7 @@ public class DoctorController
 
     }
 
-    [HttpGet]
+    [HttpGet("GetDoctorsForSpecialty")]
     public async Task<IResult> GetDoctorsForSpecialty(
         [FromQuery] string specialty
     )

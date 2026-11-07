@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/api/api.csproj" />
+    <Project Path="src/MedTech.AppHost/MedTech.AppHost.csproj" />
+    <Project Path="src/MedTech.ServiceDefaults/MedTech.ServiceDefaults.csproj" />
+  </Folder>
+</Solution>

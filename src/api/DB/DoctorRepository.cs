@@ -21,7 +21,7 @@ public class DoctorRepository
 
     public async Task<bool> FindDoctorAsync(string LastName, string FirstName, string Passport)
     {
-        return await medTechDbContext.Doctors.AnyAsync(d => d.LastName == LastName && d.FirstName == FirstName && d.Passport == Passport);
+        return await medTechDbContext.Doctors.AnyAsync(d => d.Passport == Passport);
     }
 
     public async Task<DoctorEntity> AddDoctorAsync(RequestAddDoctor requestAddDoctor)

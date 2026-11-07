@@ -31,7 +31,7 @@ public class DiseaseController
         return Results.Ok<DiseaseResponse>(result.Value);
     }
 
-    [HttpGet]
+    [HttpGet("AllDiseases")]
     public async Task<IResult> GetAllDiseases()
     {
         Result<List<DiseaseResponse>> result = await diseaseService.GetAllDiseasesAsync();

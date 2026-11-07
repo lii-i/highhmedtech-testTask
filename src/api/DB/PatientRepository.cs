@@ -20,8 +20,11 @@ public class PatientRepository
                 .ThenInclude(dp => dp.Doctor)
             .Include(p => p.DiseasePatients)
                 .ThenInclude(dp => dp.Disease)
+            .Include(p => p.DiseasePatients)
+                .ThenInclude(dp => dp.Doctor)
             .FirstOrDefaultAsync(p => p.Id == id);
     }
+
 
     public async Task<List<PatientEntity>> GetAllPatientsAsync()
     {
@@ -30,8 +33,11 @@ public class PatientRepository
                 .ThenInclude(dp => dp.Doctor)
             .Include(p => p.DiseasePatients)
                 .ThenInclude(dp => dp.Disease)
+            .Include(p => p.DiseasePatients)
+                .ThenInclude(dp => dp.Doctor)
             .ToListAsync();
     }
+
 
     public async Task AddAsync(PatientEntity patient)
     {

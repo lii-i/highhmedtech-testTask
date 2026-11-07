@@ -38,10 +38,26 @@ public class DoctorService
 
     public async Task<Result<DoctorResponse>> AddDoctorAsync(RequestAddDoctor requestAddDoctor)
     {
-        if (requestAddDoctor.LastName == null || requestAddDoctor.FirstName == null || requestAddDoctor.Passport == null || requestAddDoctor.Specialty == null)
+        if (string.IsNullOrWhiteSpace(requestAddDoctor.LastName) || string.IsNullOrWhiteSpace(requestAddDoctor.FirstName) || string.IsNullOrWhiteSpace(requestAddDoctor.Passport) || string.IsNullOrWhiteSpace(requestAddDoctor.Specialty))
         {
-            return new Result<DoctorResponse> { Value = null, errorType = ErrorType.Validation, Error = "поля LastName, FirstName, Specialty обязательны для заполнения" };
+            return new Result<DoctorResponse> { Value = null, errorType = ErrorType.Validation, Error = "поля LastName, FirstName, Passport, Specialty обязательны для заполнения" };
         }
+
+        if (!System.Text.RegularExpressions.Regex.IsMatch(requestAddDoctor.Passport, @"^\d{10}$"))
+        {
+            return new Result<DoctorResponse>
+            {
+                Value = null,
+                errorType = ErrorType.Validation,
+                Error = "паспорт должен содержать ровно 10 цифр"
+            };
+        }
+
+        requestAddDoctor.LastName = requestAddDoctor.LastName.Trim();
+        requestAddDoctor.FirstName = requestAddDoctor.FirstName.Trim();
+        requestAddDoctor.Patronymic = requestAddDoctor.Patronymic?.Trim();
+        requestAddDoctor.Passport = requestAddDoctor.Passport.Trim();
+        requestAddDoctor.Specialty = requestAddDoctor.Specialty.Trim().ToLower();
 
         bool find = await _doctorRepository.FindDoctorAsync(requestAddDoctor.LastName, requestAddDoctor.FirstName, requestAddDoctor.Passport);
         if (find)
@@ -52,7 +68,7 @@ public class DoctorService
         DoctorEntity addingDoctor = await _doctorRepository.AddDoctorAsync(requestAddDoctor);
 
 
-        DoctorResponse DoctorResponse = new DoctorResponse
+        DoctorResponse doctorResponse = new DoctorResponse
         {
             Id = addingDoctor.Id,
             FirstName = addingDoctor.FirstName,
@@ -62,7 +78,7 @@ public class DoctorService
             Specialty = addingDoctor.Specialty
         };
 
-        return new Result<DoctorResponse> { Value = DoctorResponse, Error = null };
+        return new Result<DoctorResponse> { Value = doctorResponse, Error = null };
     }
 
     public async Task<Result<List<DoctorResponse>>> GetDoctorsForSpecialtyAsync(string specialty)
@@ -70,6 +86,8 @@ public class DoctorService
 
         if (string.IsNullOrWhiteSpace(specialty))
             return new Result<List<DoctorResponse>> { Value = null, errorType = ErrorType.Validation, Error = "Не указана специальность" };
+
+        specialty = specialty.ToLower();
 
         List<DoctorEntity> doctors = await _doctorRepository.GetDoctorsForSpecialtyAsync(specialty);
 

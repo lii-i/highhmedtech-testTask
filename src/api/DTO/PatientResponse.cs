@@ -7,6 +7,6 @@ public class PatientResponse
     public string SNILS { get; set; }
     public DateOnly BirthDate { get; set; }
 
-    public List<DoctorResponse> doctors { get; set; }
-    public List<DiseaseDTO> diseases { get; set; }
+    public List<DoctorResponse> Doctors { get; set; }
+    public List<DiagnosisDto> Diagnoses { get; set; }
 }
