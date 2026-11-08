@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 [ApiController]
 [Route("api/[controller]")]
-public class DoctorController
+public class DoctorController : ControllerBase
 {
     private readonly DoctorService doctorService;
     private readonly ILogger<DoctorController> logger;

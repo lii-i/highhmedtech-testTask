@@ -59,7 +59,7 @@ public class DoctorService
         requestAddDoctor.Passport = requestAddDoctor.Passport.Trim();
         requestAddDoctor.Specialty = requestAddDoctor.Specialty.Trim().ToLower();
 
-        bool find = await _doctorRepository.FindDoctorAsync(requestAddDoctor.LastName, requestAddDoctor.FirstName, requestAddDoctor.Passport);
+        bool find = await _doctorRepository.FindDoctorAsync(requestAddDoctor.Passport);
         if (find)
         {
             return new Result<DoctorResponse> { Value = null, errorType = ErrorType.Conflict, Error = "Такая запись доктора уже существует" };
@@ -87,7 +87,7 @@ public class DoctorService
         if (string.IsNullOrWhiteSpace(specialty))
             return new Result<List<DoctorResponse>> { Value = null, errorType = ErrorType.Validation, Error = "Не указана специальность" };
 
-        specialty = specialty.ToLower();
+        specialty = specialty.Trim().ToLower();
 
         List<DoctorEntity> doctors = await _doctorRepository.GetDoctorsForSpecialtyAsync(specialty);
 

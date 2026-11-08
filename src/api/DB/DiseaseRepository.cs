@@ -24,7 +24,7 @@ public class DiseaseRepository
 
     public async Task<bool> FindDiseaseAsync(string Name)
     {
-        return await medTechDbContext.Diseases.AnyAsync(d => d.Name == Name);
+        return await medTechDbContext.Diseases.AnyAsync(d => d.Name.ToLower() == Name.ToLower());
     }
 
     public async Task<DiseaseEntity> AddDiseaseAsync(RequestAddDisease requestAddDisease)

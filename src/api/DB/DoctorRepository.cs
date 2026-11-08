@@ -17,7 +17,7 @@ public class DoctorRepository
         return doctor;
     }
 
-    public async Task<bool> FindDoctorAsync(string LastName, string FirstName, string Passport)
+    public async Task<bool> FindDoctorAsync(string Passport)
     {
         return await medTechDbContext.Doctors.AnyAsync(d => d.Passport == Passport);
     }
