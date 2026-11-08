@@ -31,6 +31,9 @@ public class DiseaseService
             };
         }
 
+        request.Name = request.Name.Trim();
+        request.Code = string.IsNullOrWhiteSpace(request.Code) ? null : request.Code.Trim();
+
         DiseaseEntity addedDisease = await diseaseRepository.AddDiseaseAsync(request);
 
         DiseaseResponse diseaseResponse = new DiseaseResponse
