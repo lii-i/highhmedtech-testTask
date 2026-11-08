@@ -4,12 +4,9 @@ using Microsoft.Extensions.Logging;
 public class PatientRepository
 {
     public readonly MedTechDbContext medTechDbContext;
-    public readonly ILogger<PatientRepository> logger;
-
-    public PatientRepository(MedTechDbContext medTechDbContext, ILogger<PatientRepository> logger)
+    public PatientRepository(MedTechDbContext medTechDbContext)
     {
         this.medTechDbContext = medTechDbContext;
-        this.logger = logger;
     }
 
 

@@ -27,6 +27,9 @@ public class Program
         builder.Services.AddScoped<DiseaseRepository>();
         builder.Services.AddScoped<DiseaseService>();
 
+        builder.Services.AddProblemDetails();
+        builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
         WebApplication app = builder.Build();
 
         using (var scope = app.Services.CreateScope())
@@ -35,10 +38,14 @@ public class Program
             db.Database.Migrate();
         }
 
+        app.UseExceptionHandler();
+
         app.UseSwagger();
         app.UseSwaggerUI();
 
         app.MapControllers();
+
+        app.MapDefaultEndpoints();
 
         app.Run();
     }

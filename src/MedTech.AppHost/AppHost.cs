@@ -7,7 +7,10 @@ var postgres = builder.AddPostgres("postgres")
 var db = postgres.AddDatabase("medtech");
 
 builder.AddProject<Projects.api>("api")
+    .WithEnvironment("ASPNETCORE_ENVIRONMENT", builder.Environment.EnvironmentName)
+    .WithEnvironment("DOTNET_ENVIRONMENT", builder.Environment.EnvironmentName)
     .WithReference(db)
     .WaitFor(db);
+
 
 builder.Build().Run();

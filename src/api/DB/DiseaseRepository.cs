@@ -4,12 +4,10 @@ using Microsoft.Extensions.Logging;
 public class DiseaseRepository
 {
     public readonly MedTechDbContext medTechDbContext;
-    public readonly ILogger<DiseaseRepository> logger;
 
-    public DiseaseRepository(MedTechDbContext medTechDbContext, ILogger<DiseaseRepository> logger)
+    public DiseaseRepository(MedTechDbContext medTechDbContext)
     {
         this.medTechDbContext = medTechDbContext;
-        this.logger = logger;
     }
 
     public async Task<DiseaseEntity?> GetDiseaseByIdAsync(int id)
